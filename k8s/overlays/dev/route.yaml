@@ -1,0 +1,19 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: teleportal-demo
+  namespace: teleportal-app
+  labels:
+    app.kubernetes.io/name: teleportal-demo
+    app.kubernetes.io/part-of: telenet-rhacm-demo
+    app.kubernetes.io/managed-by: fluxcd
+spec:
+  to:
+    kind: Service
+    name: teleportal-demo
+    weight: 100
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect

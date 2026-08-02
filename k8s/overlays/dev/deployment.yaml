@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: teleportal-demo
+  namespace: teleportal-app
+  labels:
+    app.kubernetes.io/name: teleportal-demo
+    app.kubernetes.io/part-of: telenet-rhacm-demo
+    app.kubernetes.io/managed-by: fluxcd
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: teleportal-demo
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: teleportal-demo
+        app.kubernetes.io/part-of: telenet-rhacm-demo
+        app.kubernetes.io/managed-by: fluxcd
+    spec:
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: httpd
+          image: registry.access.redhat.com/ubi9/httpd-24:latest
+          ports:
+            - containerPort: 8080
+              name: http
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+          readinessProbe:
+            httpGet:
+              path: /index.html
+              port: 8080
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /index.html
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          volumeMounts:
+            - name: html
+              mountPath: /var/www/html/index.html
+              subPath: index.html
+              readOnly: true
+      volumes:
+        - name: html
+          configMap:
+            name: teleportal-demo-html
