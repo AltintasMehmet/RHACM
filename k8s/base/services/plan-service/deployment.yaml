@@ -28,7 +28,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: plan-service
-          image: quay.io/teleportal/plan-service:latest
+          image: image-registry.openshift-image-registry.svc:5000/teleportal-app/plan-service:latest
           ports:
             - containerPort: 8000
           envFrom:

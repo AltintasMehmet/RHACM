@@ -28,7 +28,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: api-gateway
-          image: quay.io/teleportal/api-gateway:latest
+          image: image-registry.openshift-image-registry.svc:5000/teleportal-app/api-gateway:latest
           ports:
             - containerPort: 8000
           envFrom:

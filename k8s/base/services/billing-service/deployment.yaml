@@ -28,7 +28,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: billing-service
-          image: quay.io/teleportal/billing-service:latest
+          image: image-registry.openshift-image-registry.svc:5000/teleportal-app/billing-service:latest
           ports:
             - containerPort: 8000
           envFrom:

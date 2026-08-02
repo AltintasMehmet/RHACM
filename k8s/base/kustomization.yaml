@@ -6,6 +6,10 @@ resources:
   - namespaces/teleportal-app.yaml
   - namespaces/teleportal-infra.yaml
 
+  # Builds (OpenShift BuildConfigs + ImageStreams)
+  - builds/imagestreams.yaml
+  - builds/buildconfigs.yaml
+
   # Infrastructure - PostgreSQL
   - infrastructure/postgresql/statefulset.yaml
   - infrastructure/postgresql/service.yaml

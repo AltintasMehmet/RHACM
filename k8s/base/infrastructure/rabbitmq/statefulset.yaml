@@ -61,12 +61,6 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /var/lib/rabbitmq
-  volumeClaimTemplates:
-    - metadata:
-        name: data
-      spec:
-        accessModes:
-          - ReadWriteOnce
-        resources:
-          requests:
-            storage: 5Gi
+      volumes:
+        - name: data
+          emptyDir: {}

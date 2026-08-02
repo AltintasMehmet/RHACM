@@ -28,7 +28,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: usage-service
-          image: quay.io/teleportal/usage-service:latest
+          image: image-registry.openshift-image-registry.svc:5000/teleportal-app/usage-service:latest
           ports:
             - containerPort: 8000
           envFrom:
