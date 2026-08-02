@@ -6,6 +6,3 @@ resources:
 
 patches:
   - path: patches.yaml
-
-commonLabels:
-  environment: dev
