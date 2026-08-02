@@ -1,0 +1,64 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: billing-service
+  namespace: teleportal-app
+  labels:
+    app.kubernetes.io/name: billing-service
+    app.kubernetes.io/part-of: teleportal
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: billing-service
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: api-gateway
+      ports:
+        - protocol: TCP
+          port: 8000
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: teleportal-infra
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: billing-db
+      ports:
+        - protocol: TCP
+          port: 5432
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: teleportal-infra
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: rabbitmq
+      ports:
+        - protocol: TCP
+          port: 5672
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: subscriber-service
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: plan-service
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: usage-service
+      ports:
+        - protocol: TCP
+          port: 8000
+    - to:
+        - namespaceSelector: {}
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53

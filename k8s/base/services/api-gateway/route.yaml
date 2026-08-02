@@ -1,0 +1,17 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: teleportal-api
+  namespace: teleportal-app
+  labels:
+    app.kubernetes.io/name: api-gateway
+    app.kubernetes.io/part-of: teleportal
+spec:
+  to:
+    kind: Service
+    name: api-gateway
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect

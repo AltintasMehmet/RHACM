@@ -1,0 +1,99 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  # Namespaces
+  - namespaces/teleportal-app.yaml
+  - namespaces/teleportal-infra.yaml
+
+  # Infrastructure - PostgreSQL
+  - infrastructure/postgresql/statefulset.yaml
+  - infrastructure/postgresql/service.yaml
+  - infrastructure/postgresql/secret.yaml
+  - infrastructure/postgresql/networkpolicy.yaml
+
+  # Infrastructure - Redis
+  - infrastructure/redis/statefulset.yaml
+  - infrastructure/redis/service.yaml
+  - infrastructure/redis/networkpolicy.yaml
+
+  # Infrastructure - RabbitMQ
+  - infrastructure/rabbitmq/statefulset.yaml
+  - infrastructure/rabbitmq/service.yaml
+  - infrastructure/rabbitmq/networkpolicy.yaml
+
+  # Services - API Gateway
+  - services/api-gateway/deployment.yaml
+  - services/api-gateway/service.yaml
+  - services/api-gateway/serviceaccount.yaml
+  - services/api-gateway/hpa.yaml
+  - services/api-gateway/pdb.yaml
+  - services/api-gateway/configmap.yaml
+  - services/api-gateway/networkpolicy.yaml
+  - services/api-gateway/servicemonitor.yaml
+  - services/api-gateway/route.yaml
+
+  # Services - Subscriber Service
+  - services/subscriber-service/deployment.yaml
+  - services/subscriber-service/service.yaml
+  - services/subscriber-service/serviceaccount.yaml
+  - services/subscriber-service/hpa.yaml
+  - services/subscriber-service/pdb.yaml
+  - services/subscriber-service/configmap.yaml
+  - services/subscriber-service/secret.yaml
+  - services/subscriber-service/networkpolicy.yaml
+  - services/subscriber-service/servicemonitor.yaml
+
+  # Services - Plan Service
+  - services/plan-service/deployment.yaml
+  - services/plan-service/service.yaml
+  - services/plan-service/serviceaccount.yaml
+  - services/plan-service/hpa.yaml
+  - services/plan-service/pdb.yaml
+  - services/plan-service/configmap.yaml
+  - services/plan-service/secret.yaml
+  - services/plan-service/networkpolicy.yaml
+  - services/plan-service/servicemonitor.yaml
+
+  # Services - Usage Service
+  - services/usage-service/deployment.yaml
+  - services/usage-service/service.yaml
+  - services/usage-service/serviceaccount.yaml
+  - services/usage-service/hpa.yaml
+  - services/usage-service/pdb.yaml
+  - services/usage-service/configmap.yaml
+  - services/usage-service/secret.yaml
+  - services/usage-service/networkpolicy.yaml
+  - services/usage-service/servicemonitor.yaml
+
+  # Services - Billing Service
+  - services/billing-service/deployment.yaml
+  - services/billing-service/service.yaml
+  - services/billing-service/serviceaccount.yaml
+  - services/billing-service/hpa.yaml
+  - services/billing-service/pdb.yaml
+  - services/billing-service/configmap.yaml
+  - services/billing-service/secret.yaml
+  - services/billing-service/networkpolicy.yaml
+  - services/billing-service/servicemonitor.yaml
+
+  # Services - Notification Service
+  - services/notification-service/deployment.yaml
+  - services/notification-service/service.yaml
+  - services/notification-service/serviceaccount.yaml
+  - services/notification-service/hpa.yaml
+  - services/notification-service/pdb.yaml
+  - services/notification-service/configmap.yaml
+  - services/notification-service/secret.yaml
+  - services/notification-service/networkpolicy.yaml
+  - services/notification-service/servicemonitor.yaml
+
+  # Services - Network Status Service
+  - services/network-status-service/deployment.yaml
+  - services/network-status-service/service.yaml
+  - services/network-status-service/serviceaccount.yaml
+  - services/network-status-service/hpa.yaml
+  - services/network-status-service/pdb.yaml
+  - services/network-status-service/configmap.yaml
+  - services/network-status-service/networkpolicy.yaml
+  - services/network-status-service/servicemonitor.yaml

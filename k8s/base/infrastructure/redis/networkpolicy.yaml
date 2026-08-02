@@ -1,0 +1,32 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: redis-allow-ingress
+  namespace: teleportal-infra
+  labels:
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/part-of: teleportal
+    app.kubernetes.io/component: infrastructure
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: redis
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              app.kubernetes.io/part-of: teleportal
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: usage-service
+        - namespaceSelector:
+            matchLabels:
+              app.kubernetes.io/part-of: teleportal
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: network-status-service
+      ports:
+        - protocol: TCP
+          port: 6379

@@ -1,0 +1,60 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  name: policy-teleportal-trusted-registry
+  namespace: teleportal-app
+  annotations:
+    policy.open-cluster-management.io/standards: NIST SP 800-53
+    policy.open-cluster-management.io/categories: CM Configuration Management
+    policy.open-cluster-management.io/controls: CM-5 Access Restrictions for Change
+spec:
+  remediationAction: enforce
+  disabled: false
+  policy-templates:
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: teleportal-trusted-registry
+        spec:
+          remediationAction: enforce
+          severity: critical
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: config.openshift.io/v1
+                kind: Image
+                metadata:
+                  name: cluster
+                spec:
+                  registrySources:
+                    allowedRegistries:
+                      - quay.io/teleportal
+                      - registry.redhat.io
+                      - registry.access.redhat.com
+                      - image-registry.openshift-image-registry.svc:5000
+---
+apiVersion: cluster.open-cluster-management.io/v1beta1
+kind: Placement
+metadata:
+  name: placement-policy-trusted-registry
+  namespace: teleportal-app
+spec:
+  clusterSets:
+    - telenet-production
+    - telenet-staging
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: PlacementBinding
+metadata:
+  name: binding-policy-trusted-registry
+  namespace: teleportal-app
+spec:
+  placementRef:
+    name: placement-policy-trusted-registry
+    kind: Placement
+    apiGroup: cluster.open-cluster-management.io
+  subjects:
+    - name: policy-teleportal-trusted-registry
+      kind: Policy
+      apiGroup: policy.open-cluster-management.io

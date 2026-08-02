@@ -1,0 +1,106 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  name: policy-teleportal-resource-limits
+  namespace: teleportal-app
+  annotations:
+    policy.open-cluster-management.io/standards: NIST SP 800-53
+    policy.open-cluster-management.io/categories: CM Configuration Management
+    policy.open-cluster-management.io/controls: CM-2 Baseline Configuration
+spec:
+  remediationAction: inform
+  disabled: false
+  policy-templates:
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: teleportal-app-limit-range
+        spec:
+          remediationAction: inform
+          severity: high
+          namespaceSelector:
+            include:
+              - teleportal-app
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: v1
+                kind: LimitRange
+                metadata:
+                  name: teleportal-resource-limits
+                  namespace: teleportal-app
+                spec:
+                  limits:
+                    - type: Container
+                      default:
+                        cpu: 500m
+                        memory: 512Mi
+                      defaultRequest:
+                        cpu: 100m
+                        memory: 128Mi
+                      max:
+                        cpu: "2"
+                        memory: 2Gi
+                      min:
+                        cpu: 50m
+                        memory: 64Mi
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: teleportal-infra-limit-range
+        spec:
+          remediationAction: inform
+          severity: high
+          namespaceSelector:
+            include:
+              - teleportal-infra
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: v1
+                kind: LimitRange
+                metadata:
+                  name: teleportal-resource-limits
+                  namespace: teleportal-infra
+                spec:
+                  limits:
+                    - type: Container
+                      default:
+                        cpu: 500m
+                        memory: 512Mi
+                      defaultRequest:
+                        cpu: 100m
+                        memory: 128Mi
+                      max:
+                        cpu: "2"
+                        memory: 2Gi
+                      min:
+                        cpu: 50m
+                        memory: 64Mi
+---
+apiVersion: cluster.open-cluster-management.io/v1beta1
+kind: Placement
+metadata:
+  name: placement-policy-resource-limits
+  namespace: teleportal-app
+spec:
+  clusterSets:
+    - telenet-production
+    - telenet-staging
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: PlacementBinding
+metadata:
+  name: binding-policy-resource-limits
+  namespace: teleportal-app
+spec:
+  placementRef:
+    name: placement-policy-resource-limits
+    kind: Placement
+    apiGroup: cluster.open-cluster-management.io
+  subjects:
+    - name: policy-teleportal-resource-limits
+      kind: Policy
+      apiGroup: policy.open-cluster-management.io

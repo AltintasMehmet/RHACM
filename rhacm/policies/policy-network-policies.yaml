@@ -1,0 +1,62 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  name: policy-teleportal-network-policies
+  namespace: teleportal-app
+  annotations:
+    policy.open-cluster-management.io/standards: NIST SP 800-53
+    policy.open-cluster-management.io/categories: SC System and Communications Protection
+    policy.open-cluster-management.io/controls: SC-7 Boundary Protection
+spec:
+  remediationAction: inform
+  disabled: false
+  policy-templates:
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: teleportal-default-deny
+        spec:
+          remediationAction: inform
+          severity: high
+          namespaceSelector:
+            include:
+              - teleportal-app
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: networking.k8s.io/v1
+                kind: NetworkPolicy
+                metadata:
+                  name: default-deny-all
+                  namespace: teleportal-app
+                spec:
+                  podSelector: {}
+                  policyTypes:
+                    - Ingress
+                    - Egress
+---
+apiVersion: cluster.open-cluster-management.io/v1beta1
+kind: Placement
+metadata:
+  name: placement-policy-network-policies
+  namespace: teleportal-app
+spec:
+  clusterSets:
+    - telenet-production
+    - telenet-staging
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: PlacementBinding
+metadata:
+  name: binding-policy-network-policies
+  namespace: teleportal-app
+spec:
+  placementRef:
+    name: placement-policy-network-policies
+    kind: Placement
+    apiGroup: cluster.open-cluster-management.io
+  subjects:
+    - name: policy-teleportal-network-policies
+      kind: Policy
+      apiGroup: policy.open-cluster-management.io

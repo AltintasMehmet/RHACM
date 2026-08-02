@@ -1,0 +1,234 @@
+services:
+  # --- Infrastructure ---
+  subscriber-db:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: subscribers
+      POSTGRES_USER: teleportal
+      POSTGRES_PASSWORD: teleportal-demo
+    volumes:
+      - subscriber-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U teleportal -d subscribers"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  plan-db:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: plans
+      POSTGRES_USER: teleportal
+      POSTGRES_PASSWORD: teleportal-demo
+    volumes:
+      - plan-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U teleportal -d plans"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  usage-db:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: usage
+      POSTGRES_USER: teleportal
+      POSTGRES_PASSWORD: teleportal-demo
+    volumes:
+      - usage-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U teleportal -d usage"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  billing-db:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: billing
+      POSTGRES_USER: teleportal
+      POSTGRES_PASSWORD: teleportal-demo
+    volumes:
+      - billing-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U teleportal -d billing"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  notification-db:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: notifications
+      POSTGRES_USER: teleportal
+      POSTGRES_PASSWORD: teleportal-demo
+    volumes:
+      - notification-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U teleportal -d notifications"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: always
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    restart: always
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "15672:15672"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # --- Application Services ---
+  plan-service:
+    build: ./services/plan-service
+    restart: always
+    environment:
+      TELEPORTAL_DATABASE_URL: "postgresql+asyncpg://teleportal:teleportal-demo@plan-db:5432/plans"
+      TELEPORTAL_LOG_LEVEL: "INFO"
+    depends_on:
+      plan-db:
+        condition: service_healthy
+
+  subscriber-service:
+    build: ./services/subscriber-service
+    restart: always
+    environment:
+      TELEPORTAL_DATABASE_URL: "postgresql+asyncpg://teleportal:teleportal-demo@subscriber-db:5432/subscribers"
+      TELEPORTAL_RABBITMQ_URL: "amqp://guest:guest@rabbitmq:5672/"
+      TELEPORTAL_PLAN_SERVICE_URL: "http://plan-service:8000"
+      TELEPORTAL_LOG_LEVEL: "INFO"
+    depends_on:
+      subscriber-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      plan-service:
+        condition: service_started
+
+  usage-service:
+    build: ./services/usage-service
+    restart: always
+    environment:
+      TELEPORTAL_DATABASE_URL: "postgresql+asyncpg://teleportal:teleportal-demo@usage-db:5432/usage"
+      TELEPORTAL_REDIS_URL: "redis://redis:6379/0"
+      TELEPORTAL_RABBITMQ_URL: "amqp://guest:guest@rabbitmq:5672/"
+      TELEPORTAL_LOG_LEVEL: "INFO"
+    depends_on:
+      usage-db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  billing-service:
+    build: ./services/billing-service
+    restart: always
+    environment:
+      TELEPORTAL_DATABASE_URL: "postgresql+asyncpg://teleportal:teleportal-demo@billing-db:5432/billing"
+      TELEPORTAL_RABBITMQ_URL: "amqp://guest:guest@rabbitmq:5672/"
+      TELEPORTAL_SUBSCRIBER_SERVICE_URL: "http://subscriber-service:8000"
+      TELEPORTAL_PLAN_SERVICE_URL: "http://plan-service:8000"
+      TELEPORTAL_USAGE_SERVICE_URL: "http://usage-service:8000"
+      TELEPORTAL_TAX_RATE: "0.21"
+      TELEPORTAL_LOG_LEVEL: "INFO"
+    depends_on:
+      billing-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      subscriber-service:
+        condition: service_started
+      plan-service:
+        condition: service_started
+      usage-service:
+        condition: service_started
+
+  notification-service:
+    build: ./services/notification-service
+    restart: always
+    environment:
+      TELEPORTAL_DATABASE_URL: "postgresql+asyncpg://teleportal:teleportal-demo@notification-db:5432/notifications"
+      TELEPORTAL_RABBITMQ_URL: "amqp://guest:guest@rabbitmq:5672/"
+      TELEPORTAL_LOG_LEVEL: "INFO"
+    depends_on:
+      notification-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  network-status-service:
+    build: ./services/network-status-service
+    restart: always
+    environment:
+      TELEPORTAL_REDIS_URL: "redis://redis:6379/1"
+      TELEPORTAL_RABBITMQ_URL: "amqp://guest:guest@rabbitmq:5672/"
+      TELEPORTAL_LOG_LEVEL: "INFO"
+    depends_on:
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  api-gateway:
+    build: ./services/api-gateway
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      TELEPORTAL_SUBSCRIBER_SERVICE_URL: "http://subscriber-service:8000"
+      TELEPORTAL_PLAN_SERVICE_URL: "http://plan-service:8000"
+      TELEPORTAL_USAGE_SERVICE_URL: "http://usage-service:8000"
+      TELEPORTAL_BILLING_SERVICE_URL: "http://billing-service:8000"
+      TELEPORTAL_NOTIFICATION_SERVICE_URL: "http://notification-service:8000"
+      TELEPORTAL_NETWORK_SERVICE_URL: "http://network-status-service:8000"
+      TELEPORTAL_LOG_LEVEL: "INFO"
+    depends_on:
+      - plan-service
+      - subscriber-service
+      - usage-service
+      - billing-service
+      - notification-service
+      - network-status-service
+
+  dashboard:
+    build: ./services/dashboard
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api-gateway
+
+volumes:
+  subscriber-db-data:
+  plan-db-data:
+  usage-db-data:
+  billing-db-data:
+  notification-db-data:
+  redis-data:
+  rabbitmq-data:

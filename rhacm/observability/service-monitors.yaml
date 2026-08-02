@@ -1,0 +1,125 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: api-gateway-monitor
+  namespace: teleportal-app
+  labels:
+    app.kubernetes.io/part-of: teleportal
+    app.kubernetes.io/component: api-gateway
+spec:
+  selector:
+    matchLabels:
+      app: api-gateway
+  endpoints:
+    - port: http
+      targetPort: 8000
+      path: /metrics
+      interval: 30s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: billing-service-monitor
+  namespace: teleportal-app
+  labels:
+    app.kubernetes.io/part-of: teleportal
+    app.kubernetes.io/component: billing-service
+spec:
+  selector:
+    matchLabels:
+      app: billing-service
+  endpoints:
+    - port: http
+      targetPort: 8000
+      path: /metrics
+      interval: 30s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: network-status-service-monitor
+  namespace: teleportal-app
+  labels:
+    app.kubernetes.io/part-of: teleportal
+    app.kubernetes.io/component: network-status-service
+spec:
+  selector:
+    matchLabels:
+      app: network-status-service
+  endpoints:
+    - port: http
+      targetPort: 8000
+      path: /metrics
+      interval: 30s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: notification-service-monitor
+  namespace: teleportal-app
+  labels:
+    app.kubernetes.io/part-of: teleportal
+    app.kubernetes.io/component: notification-service
+spec:
+  selector:
+    matchLabels:
+      app: notification-service
+  endpoints:
+    - port: http
+      targetPort: 8000
+      path: /metrics
+      interval: 30s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: plan-service-monitor
+  namespace: teleportal-app
+  labels:
+    app.kubernetes.io/part-of: teleportal
+    app.kubernetes.io/component: plan-service
+spec:
+  selector:
+    matchLabels:
+      app: plan-service
+  endpoints:
+    - port: http
+      targetPort: 8000
+      path: /metrics
+      interval: 30s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: subscriber-service-monitor
+  namespace: teleportal-app
+  labels:
+    app.kubernetes.io/part-of: teleportal
+    app.kubernetes.io/component: subscriber-service
+spec:
+  selector:
+    matchLabels:
+      app: subscriber-service
+  endpoints:
+    - port: http
+      targetPort: 8000
+      path: /metrics
+      interval: 30s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: usage-service-monitor
+  namespace: teleportal-app
+  labels:
+    app.kubernetes.io/part-of: teleportal
+    app.kubernetes.io/component: usage-service
+spec:
+  selector:
+    matchLabels:
+      app: usage-service
+  endpoints:
+    - port: http
+      targetPort: 8000
+      path: /metrics
+      interval: 30s

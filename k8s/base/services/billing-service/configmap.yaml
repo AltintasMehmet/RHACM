@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: billing-service-config
+  namespace: teleportal-app
+  labels:
+    app.kubernetes.io/name: billing-service
+    app.kubernetes.io/part-of: teleportal
+data:
+  TELEPORTAL_APP_NAME: "billing-service"
+  TELEPORTAL_LOG_LEVEL: "INFO"
+  TELEPORTAL_SUBSCRIBER_SERVICE_URL: "http://subscriber-service.teleportal-app.svc.cluster.local:8000"
+  TELEPORTAL_PLAN_SERVICE_URL: "http://plan-service.teleportal-app.svc.cluster.local:8000"
+  TELEPORTAL_USAGE_SERVICE_URL: "http://usage-service.teleportal-app.svc.cluster.local:8000"
+  TELEPORTAL_RABBITMQ_URL: "amqp://guest:guest@rabbitmq.teleportal-infra.svc.cluster.local:5672/"
+  TELEPORTAL_TAX_RATE: "0.21"

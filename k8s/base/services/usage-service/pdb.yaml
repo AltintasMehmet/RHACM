@@ -1,0 +1,13 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: usage-service
+  namespace: teleportal-app
+  labels:
+    app.kubernetes.io/name: usage-service
+    app.kubernetes.io/part-of: teleportal
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: usage-service

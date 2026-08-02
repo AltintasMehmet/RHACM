@@ -1,0 +1,424 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: subscriber-db
+  namespace: teleportal-infra
+  labels:
+    app.kubernetes.io/name: subscriber-db
+    app.kubernetes.io/part-of: teleportal
+    app.kubernetes.io/component: infrastructure
+spec:
+  serviceName: subscriber-db
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: subscriber-db
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: subscriber-db
+        app.kubernetes.io/part-of: teleportal
+        app.kubernetes.io/component: infrastructure
+    spec:
+      securityContext:
+        runAsNonRoot: false
+        fsGroup: 999
+      containers:
+        - name: postgres
+          image: postgres:16-alpine
+          ports:
+            - containerPort: 5432
+              name: postgres
+          env:
+            - name: POSTGRES_DB
+              value: subscribers
+            - name: POSTGRES_USER
+              value: teleportal
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgresql-credentials
+                  key: POSTGRES_PASSWORD
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          livenessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - teleportal
+                - -d
+                - subscribers
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - teleportal
+                - -d
+                - subscribers
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 5Gi
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: plan-db
+  namespace: teleportal-infra
+  labels:
+    app.kubernetes.io/name: plan-db
+    app.kubernetes.io/part-of: teleportal
+    app.kubernetes.io/component: infrastructure
+spec:
+  serviceName: plan-db
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: plan-db
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: plan-db
+        app.kubernetes.io/part-of: teleportal
+        app.kubernetes.io/component: infrastructure
+    spec:
+      securityContext:
+        runAsNonRoot: false
+        fsGroup: 999
+      containers:
+        - name: postgres
+          image: postgres:16-alpine
+          ports:
+            - containerPort: 5432
+              name: postgres
+          env:
+            - name: POSTGRES_DB
+              value: plans
+            - name: POSTGRES_USER
+              value: teleportal
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgresql-credentials
+                  key: POSTGRES_PASSWORD
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          livenessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - teleportal
+                - -d
+                - plans
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - teleportal
+                - -d
+                - plans
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 5Gi
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: usage-db
+  namespace: teleportal-infra
+  labels:
+    app.kubernetes.io/name: usage-db
+    app.kubernetes.io/part-of: teleportal
+    app.kubernetes.io/component: infrastructure
+spec:
+  serviceName: usage-db
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: usage-db
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: usage-db
+        app.kubernetes.io/part-of: teleportal
+        app.kubernetes.io/component: infrastructure
+    spec:
+      securityContext:
+        runAsNonRoot: false
+        fsGroup: 999
+      containers:
+        - name: postgres
+          image: postgres:16-alpine
+          ports:
+            - containerPort: 5432
+              name: postgres
+          env:
+            - name: POSTGRES_DB
+              value: usage
+            - name: POSTGRES_USER
+              value: teleportal
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgresql-credentials
+                  key: POSTGRES_PASSWORD
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          livenessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - teleportal
+                - -d
+                - usage
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - teleportal
+                - -d
+                - usage
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 5Gi
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: billing-db
+  namespace: teleportal-infra
+  labels:
+    app.kubernetes.io/name: billing-db
+    app.kubernetes.io/part-of: teleportal
+    app.kubernetes.io/component: infrastructure
+spec:
+  serviceName: billing-db
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: billing-db
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: billing-db
+        app.kubernetes.io/part-of: teleportal
+        app.kubernetes.io/component: infrastructure
+    spec:
+      securityContext:
+        runAsNonRoot: false
+        fsGroup: 999
+      containers:
+        - name: postgres
+          image: postgres:16-alpine
+          ports:
+            - containerPort: 5432
+              name: postgres
+          env:
+            - name: POSTGRES_DB
+              value: billing
+            - name: POSTGRES_USER
+              value: teleportal
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgresql-credentials
+                  key: POSTGRES_PASSWORD
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          livenessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - teleportal
+                - -d
+                - billing
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - teleportal
+                - -d
+                - billing
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 5Gi
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: notification-db
+  namespace: teleportal-infra
+  labels:
+    app.kubernetes.io/name: notification-db
+    app.kubernetes.io/part-of: teleportal
+    app.kubernetes.io/component: infrastructure
+spec:
+  serviceName: notification-db
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: notification-db
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: notification-db
+        app.kubernetes.io/part-of: teleportal
+        app.kubernetes.io/component: infrastructure
+    spec:
+      securityContext:
+        runAsNonRoot: false
+        fsGroup: 999
+      containers:
+        - name: postgres
+          image: postgres:16-alpine
+          ports:
+            - containerPort: 5432
+              name: postgres
+          env:
+            - name: POSTGRES_DB
+              value: notifications
+            - name: POSTGRES_USER
+              value: teleportal
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgresql-credentials
+                  key: POSTGRES_PASSWORD
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          livenessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - teleportal
+                - -d
+                - notifications
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - teleportal
+                - -d
+                - notifications
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 5Gi

@@ -1,0 +1,134 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: subscriber-db-allow-ingress
+  namespace: teleportal-infra
+  labels:
+    app.kubernetes.io/name: subscriber-db
+    app.kubernetes.io/part-of: teleportal
+    app.kubernetes.io/component: infrastructure
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: subscriber-db
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              app.kubernetes.io/part-of: teleportal
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: subscriber-service
+      ports:
+        - protocol: TCP
+          port: 5432
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: plan-db-allow-ingress
+  namespace: teleportal-infra
+  labels:
+    app.kubernetes.io/name: plan-db
+    app.kubernetes.io/part-of: teleportal
+    app.kubernetes.io/component: infrastructure
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: plan-db
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              app.kubernetes.io/part-of: teleportal
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: plan-service
+      ports:
+        - protocol: TCP
+          port: 5432
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: usage-db-allow-ingress
+  namespace: teleportal-infra
+  labels:
+    app.kubernetes.io/name: usage-db
+    app.kubernetes.io/part-of: teleportal
+    app.kubernetes.io/component: infrastructure
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: usage-db
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              app.kubernetes.io/part-of: teleportal
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: usage-service
+      ports:
+        - protocol: TCP
+          port: 5432
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: billing-db-allow-ingress
+  namespace: teleportal-infra
+  labels:
+    app.kubernetes.io/name: billing-db
+    app.kubernetes.io/part-of: teleportal
+    app.kubernetes.io/component: infrastructure
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: billing-db
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              app.kubernetes.io/part-of: teleportal
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: billing-service
+      ports:
+        - protocol: TCP
+          port: 5432
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: notification-db-allow-ingress
+  namespace: teleportal-infra
+  labels:
+    app.kubernetes.io/name: notification-db
+    app.kubernetes.io/part-of: teleportal
+    app.kubernetes.io/component: infrastructure
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: notification-db
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              app.kubernetes.io/part-of: teleportal
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: notification-service
+      ports:
+        - protocol: TCP
+          port: 5432

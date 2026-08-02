@@ -1,0 +1,94 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: subscriber-db
+  namespace: teleportal-infra
+  labels:
+    app.kubernetes.io/name: subscriber-db
+    app.kubernetes.io/part-of: teleportal
+    app.kubernetes.io/component: infrastructure
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: subscriber-db
+  ports:
+    - port: 5432
+      targetPort: 5432
+      protocol: TCP
+      name: postgres
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: plan-db
+  namespace: teleportal-infra
+  labels:
+    app.kubernetes.io/name: plan-db
+    app.kubernetes.io/part-of: teleportal
+    app.kubernetes.io/component: infrastructure
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: plan-db
+  ports:
+    - port: 5432
+      targetPort: 5432
+      protocol: TCP
+      name: postgres
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: usage-db
+  namespace: teleportal-infra
+  labels:
+    app.kubernetes.io/name: usage-db
+    app.kubernetes.io/part-of: teleportal
+    app.kubernetes.io/component: infrastructure
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: usage-db
+  ports:
+    - port: 5432
+      targetPort: 5432
+      protocol: TCP
+      name: postgres
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: billing-db
+  namespace: teleportal-infra
+  labels:
+    app.kubernetes.io/name: billing-db
+    app.kubernetes.io/part-of: teleportal
+    app.kubernetes.io/component: infrastructure
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: billing-db
+  ports:
+    - port: 5432
+      targetPort: 5432
+      protocol: TCP
+      name: postgres
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: notification-db
+  namespace: teleportal-infra
+  labels:
+    app.kubernetes.io/name: notification-db
+    app.kubernetes.io/part-of: teleportal
+    app.kubernetes.io/component: infrastructure
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: notification-db
+  ports:
+    - port: 5432
+      targetPort: 5432
+      protocol: TCP
+      name: postgres

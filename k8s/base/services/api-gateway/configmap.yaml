@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: api-gateway-config
+  namespace: teleportal-app
+  labels:
+    app.kubernetes.io/name: api-gateway
+    app.kubernetes.io/part-of: teleportal
+data:
+  TELEPORTAL_APP_NAME: "api-gateway"
+  TELEPORTAL_LOG_LEVEL: "INFO"
+  TELEPORTAL_SUBSCRIBER_SERVICE_URL: "http://subscriber-service.teleportal-app.svc.cluster.local:8000"
+  TELEPORTAL_PLAN_SERVICE_URL: "http://plan-service.teleportal-app.svc.cluster.local:8000"
+  TELEPORTAL_USAGE_SERVICE_URL: "http://usage-service.teleportal-app.svc.cluster.local:8000"
+  TELEPORTAL_BILLING_SERVICE_URL: "http://billing-service.teleportal-app.svc.cluster.local:8000"
+  TELEPORTAL_NOTIFICATION_SERVICE_URL: "http://notification-service.teleportal-app.svc.cluster.local:8000"
+  TELEPORTAL_NETWORK_SERVICE_URL: "http://network-status-service.teleportal-app.svc.cluster.local:8000"

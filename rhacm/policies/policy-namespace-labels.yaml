@@ -1,0 +1,76 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  name: policy-teleportal-namespace-labels
+  namespace: teleportal-app
+  annotations:
+    policy.open-cluster-management.io/standards: NIST SP 800-53
+    policy.open-cluster-management.io/categories: CM Configuration Management
+    policy.open-cluster-management.io/controls: CM-2 Baseline Configuration
+spec:
+  remediationAction: enforce
+  disabled: false
+  policy-templates:
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: teleportal-namespace-labels-app
+        spec:
+          remediationAction: enforce
+          severity: medium
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: v1
+                kind: Namespace
+                metadata:
+                  name: teleportal-app
+                  labels:
+                    app.kubernetes.io/part-of: teleportal
+                    team: teleportal
+                    compliance: required
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: teleportal-namespace-labels-infra
+        spec:
+          remediationAction: enforce
+          severity: medium
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: v1
+                kind: Namespace
+                metadata:
+                  name: teleportal-infra
+                  labels:
+                    app.kubernetes.io/part-of: teleportal
+                    team: teleportal
+                    compliance: required
+---
+apiVersion: cluster.open-cluster-management.io/v1beta1
+kind: Placement
+metadata:
+  name: placement-policy-namespace-labels
+  namespace: teleportal-app
+spec:
+  clusterSets:
+    - telenet-production
+    - telenet-staging
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: PlacementBinding
+metadata:
+  name: binding-policy-namespace-labels
+  namespace: teleportal-app
+spec:
+  placementRef:
+    name: placement-policy-namespace-labels
+    kind: Placement
+    apiGroup: cluster.open-cluster-management.io
+  subjects:
+    - name: policy-teleportal-namespace-labels
+      kind: Policy
+      apiGroup: policy.open-cluster-management.io
