@@ -3,5 +3,8 @@ kind: Namespace
 metadata:
   name: teleportal-app
   labels:
+    app.kubernetes.io/name: teleportal-demo
+    app.kubernetes.io/instance: teleportal-demo
     app.kubernetes.io/part-of: telenet-rhacm-demo
     app.kubernetes.io/managed-by: fluxcd
+    environment: demo

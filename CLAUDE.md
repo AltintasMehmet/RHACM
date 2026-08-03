@@ -4,56 +4,47 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-TelePortal — a telecom service portal demo for pitching Red Hat Advanced Cluster Management (RHACM). Built to show production-scale patterns to Telenet (Belgian telecom) who currently uses OpenShift Kubernetes Engine + FluxCD.
+TelePortal Fleet Demo — a minimal static web application for demonstrating Red Hat Advanced Cluster Management (RHACM) with FluxCD to Telenet (Belgian telecom).
 
-This `Telenet/` directory is the working scope; other directories in the parent `~/Desktop/Red Hat/` repo are unrelated.
+The app exists solely to provide a visible, version-stamped deployment that can be changed during a live GitOps rollout demo. It is not a functional telecom portal.
 
 ## Architecture
 
-7 Python/FastAPI microservices behind an API gateway, backed by per-service PostgreSQL databases, shared Redis, and RabbitMQ for async messaging. All services run on port 8000.
+Single static HTML page served by `registry.access.redhat.com/ubi9/httpd-24:latest`. No backend, database, or custom container image.
 
-Services communicate via:
-- HTTP (httpx) for synchronous calls (e.g., billing calls usage/plan/subscriber)
-- RabbitMQ (aio-pika) for async events (e.g., subscriber.created → notification-service)
-- Redis for real-time counters (usage-service) and network status (network-status-service)
+- Namespace: `teleportal-app`
+- Deployment: `teleportal-demo` (2 replicas)
+- HTML delivered via a Kustomize `configMapGenerator` (hash-suffixed)
+- ClusterIP Service on port 8080
+- Edge-terminated OpenShift Route
 
-## Running a Service Locally
-
-```bash
-cd services/<service-name>
-pip install -r requirements.txt
-uvicorn app.main:app --port 8000
-```
-
-All config is via environment variables with `TELEPORTAL_` prefix (see each service's `app/config.py`).
-
-## Deploying to OpenShift
+## Validating
 
 ```bash
-# Dev overlay (1 replica)
-oc apply -k k8s/overlays/dev/
-
-# Production overlay (3 replicas, higher limits)
-oc apply -k k8s/overlays/production/
-
-# RHACM resources (on hub cluster)
-oc apply -f rhacm/cluster-sets/
-oc apply -f rhacm/application/
-oc apply -f rhacm/policies/
+kubectl kustomize k8s/overlays/dev
 ```
 
-## Code Patterns
-
-- Every service follows the same structure: `app/main.py` (FastAPI lifespan), `app/config.py` (pydantic-settings), `app/routes.py`, `app/models.py` + `app/schemas.py` (SQLAlchemy + Pydantic), `app/database.py`, `app/events.py` (RabbitMQ publisher)
-- Health endpoints: `GET /health` (liveness), `GET /ready` (readiness with backing store checks)
-- Prometheus metrics exposed at `GET /metrics` via prometheus-fastapi-instrumentator
-- Tables are auto-created and seeded on startup via `app/seed.py`
-- RabbitMQ and inter-service HTTP calls are resilient — errors are caught and logged, never crash the service
-- Dockerfiles use multi-stage builds with non-root user compatible with OpenShift arbitrary UID
+The rendered output should contain exactly: Namespace, ConfigMap, Deployment, Service, Route. No other resource types.
 
 ## Key Directories
 
-- `services/` — Python microservices (api-gateway, subscriber, plan, usage, billing, notification, network-status)
-- `k8s/base/` — Kustomize base manifests (namespaces, infrastructure, per-service K8s resources)
-- `k8s/overlays/` — Environment-specific overlays (dev, staging, production)
-- `rhacm/` — RHACM-specific CRs (application lifecycle, governance policies, cluster sets)
+- `k8s/overlays/dev/` — all Kustomize manifests and the source `index.html`
+
+## Demo Flow (GitOps rollout)
+
+1. Change `index.html` (e.g. bump the version from `v1.0` to `v2.0`)
+2. Commit and push — FluxCD reconciles the new ConfigMap hash, triggering a Deployment rollout
+3. RHACM observes the running workload and enforces governance policies separately
+
+## Governance Design
+
+RHACM policies, Placement, ResourceQuota, LimitRange, NetworkPolicy and Gatekeeper resources are intentionally absent from this repo. They are applied by RHACM on the hub cluster during the live demo to show separation of concerns between app delivery (Flux) and fleet governance (RHACM).
+
+## Labels
+
+All resources carry:
+- `app.kubernetes.io/name: teleportal-demo`
+- `app.kubernetes.io/instance: teleportal-demo`
+- `app.kubernetes.io/part-of: telenet-rhacm-demo`
+- `app.kubernetes.io/managed-by: fluxcd`
+- `environment: demo`
