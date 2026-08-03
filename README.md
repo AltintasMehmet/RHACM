@@ -1,5 +1,3 @@
-Sorry—here it is directly in the chat.
-
 # RHACM + FluxCD Technical Demo Runbook
 
 Run each command block separately. When using `-w`, wait for `Compliant`, press `Ctrl+C`, and only then paste the next block.
